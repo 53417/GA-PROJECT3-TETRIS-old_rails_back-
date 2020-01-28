@@ -221,7 +221,9 @@ export default class Sp_game extends React.Component {
                     line_left: true,
                     fill: col
                 }
-            }
+            },
+            active_piece_name: "mrt",
+            active_piece_direction: 0
         });
     }
 
@@ -274,7 +276,9 @@ export default class Sp_game extends React.Component {
                     line_left: false,
                     fill: col
                 }
-            }
+            },
+            active_piece_name: "phat",
+            active_piece_direction: 0
         });
     }
 
@@ -327,7 +331,9 @@ export default class Sp_game extends React.Component {
                     line_left: false,
                     fill: col
                 }
-            }
+            },
+            active_piece_name: "l",
+            active_piece_direction: 0
         });
     }
 
@@ -380,7 +386,9 @@ export default class Sp_game extends React.Component {
                     line_left: true,
                     fill: col
                 }
-            }
+            },
+            active_piece_name: "bkl",
+            active_piece_direction: 0
         });
     }
 
@@ -433,7 +441,9 @@ export default class Sp_game extends React.Component {
                     line_left: true,
                     fill: col
                 }
-            }
+            },
+            active_piece_name: "s",
+            active_piece_direction: 0
         });
     }
 
@@ -486,7 +496,9 @@ export default class Sp_game extends React.Component {
                     line_left: true,
                     fill: col
                 }
-            }
+            },
+            active_piece_name: "bks",
+            active_piece_direction: 0
         });
     }
 
@@ -811,9 +823,6 @@ export default class Sp_game extends React.Component {
         var moveset = map[str];
         const { board } = this.state;
 
-        console.log(str)
-        console.log(moveset)
-
         //get active cells
         for(var key in board) {
             if(board[key].state === "active") {
@@ -838,24 +847,35 @@ export default class Sp_game extends React.Component {
     player_rotate_right() {
         var piece = this.state.active_piece_name;
         var start = this.state.active_piece_direction;
-        console.log(start)
         var end = 0;
 
         if(start == 3) {
             end = 0
         } else {
             end = start + 1
-        }
-
-        this.piece_rotate(piece, start, end)
+        };
 
         this.setState({
             active_piece_direction: end
         });
+        this.piece_rotate(piece, start, end)
     }
 
     player_rotate_left() {
+        var piece = this.state.active_piece_name;
+        var start = this.state.active_piece_direction;
+        var end = 0;
 
+        if(start == 0) {
+            end = 3
+        } else {
+            end = start - 1
+        };
+
+        this.setState({
+            active_piece_direction: end
+        });
+        this.piece_rotate(piece, start, end)
     }
 
     //game board is 10 wide and 20 high
