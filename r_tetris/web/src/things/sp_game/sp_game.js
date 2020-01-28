@@ -168,7 +168,7 @@ export default class Sp_game extends React.Component {
                 }
             },
             active_piece_name: "long",
-            active_piece_direction: "0"
+            active_piece_direction: 0
         });
     }
 
@@ -747,7 +747,7 @@ export default class Sp_game extends React.Component {
     player_down_piece() {
     }
 
-    rotate_test(piece, start, end) {
+    piece_rotate(piece, start, end) {
         const map = {
             long01: [9,0,-9,-18],
             long12: [-9,0,9,18],
@@ -806,8 +806,9 @@ export default class Sp_game extends React.Component {
             bks21: [10,-1,-10,-21],
             bks32: [-10,1,10,21]
         }
-        console.log(map);
         var active_keys = [];
+        var str = piece + start + end;
+        var moveset = map[str];
         const { board } = this.state;
 
         //get active cells
@@ -818,12 +819,6 @@ export default class Sp_game extends React.Component {
         };
 
         // move cells
-        var str = piece + start + end;
-        var moveset = map[str];
-
-        console.log(str);
-        console.log(moveset);
-
         var a1 = active_keys[0];
         var a2 = active_keys[1];
         var a3 = active_keys[2];
@@ -837,12 +832,26 @@ export default class Sp_game extends React.Component {
     }
 
     // maybe have which piece is active in the state as well as its rotation position to determine cell updates
-    player_rotate_left(a1, a2, a3, a4) {
-        // piece = this.active_piece_name;
-        // if(piece == long_boi)
+    player_rotate_right() {
+        var piece = this.state.active_piece_name;
+        var start = this.state.active_piece_direction;
+        console.log(start)
+        var end = 0;
+
+        if(start = 3) {
+            end = 0
+        } else {
+            end = start + 1
+        }
+
+        this.piece_rotate(piece, start, end)
+
+        this.setState({
+            active_piece_direction: end
+        });
     }
 
-    player_rotate_right() {
+    player_rotate_left() {
 
     }
 
@@ -883,7 +892,8 @@ export default class Sp_game extends React.Component {
             <Button variant="primary" onClick={() => this.player_move_right()}>move right 1</Button>
             <br></br>
             <br></br>
-            <Button variant="primary" onClick={() => this.rotate_test('long', 0, 1)}>piece rotate calc</Button>
+            <Button variant="primary" onClick={() => this.player_rotate_left()}>rotate left</Button>
+            <Button variant="primary" onClick={() => this.player_rotate_right()}>rotate right</Button>
             <br></br>
             <br></br>
             <canvas id="canvas" width="250" height="600"></canvas>;
