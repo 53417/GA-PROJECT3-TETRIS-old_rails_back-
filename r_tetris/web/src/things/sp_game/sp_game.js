@@ -751,7 +751,7 @@ export default class Sp_game extends React.Component {
         const map = {
             long01: [9,0,-9,-18],
             long12: [-9,0,9,18],
-            long23: [9,0,-9,18],
+            long23: [9,0,-9,-18],
             long30: [-9,0,9,18],
             long03: [9,0,-9,-18],
             long10: [-9,0,9,18],
@@ -811,6 +811,9 @@ export default class Sp_game extends React.Component {
         var moveset = map[str];
         const { board } = this.state;
 
+        console.log(str)
+        console.log(moveset)
+
         //get active cells
         for(var key in board) {
             if(board[key].state === "active") {
@@ -838,7 +841,7 @@ export default class Sp_game extends React.Component {
         console.log(start)
         var end = 0;
 
-        if(start = 3) {
+        if(start == 3) {
             end = 0
         } else {
             end = start + 1
