@@ -15,19 +15,6 @@ export default class Sp_game extends React.Component {
         };
     }
 
-    // const map = {
-    //     long: {
-    //         f0t1: [9,0,-9,-18],
-    //         f1t2: [-9,0,9,18],
-    //         f2t3: [9,0,-9,18],
-    //         f3t0: [-9,0,9,18],
-    //         f0t3: [9,0,-9,-18],
-    //         f1t0: [-9,0,9,18],
-    //         f2t1: [9,0,-9,-18],
-    //         f3t2: [-9,0,9,18]
-    //     }
-    // }
-
     componentDidUpdate(prevProps, prevState) {
         if (prevState.board.size !== this.state.board.size) {
             console.log('hello there')
@@ -176,8 +163,8 @@ export default class Sp_game extends React.Component {
         //cells to modify
         var c1 = start_cell_id;
         var c2 = start_cell_id + 10; 
-        var c3 = start_cell_id + 11;
-        var c4 = start_cell_id + 20;
+        var c3 = start_cell_id + 20;
+        var c4 = start_cell_id + 11;
         const { board } = this.state;
         const col = "purple"
 
@@ -230,8 +217,8 @@ export default class Sp_game extends React.Component {
     piece_phat(start_cell_id) {
         //cells to modify
         var c1 = start_cell_id;
-        var c2 = start_cell_id + 10; 
-        var c3 = start_cell_id + 1;
+        var c2 = start_cell_id + 1; 
+        var c3 = start_cell_id + 10;
         var c4 = start_cell_id + 11;
         const { board } = this.state;
         const col = "yellow"
@@ -341,8 +328,8 @@ export default class Sp_game extends React.Component {
         //cells to modify
         var c1 = start_cell_id;
         var c2 = start_cell_id + 10; 
-        var c3 = start_cell_id + 20;
-        var c4 = start_cell_id + 19;
+        var c3 = start_cell_id + 19;
+        var c4 = start_cell_id + 20;
         const { board } = this.state;
         const col = "blue"
         
@@ -450,50 +437,34 @@ export default class Sp_game extends React.Component {
     piece_bks(start_cell_id) {
         //cells to modify
         var c1 = start_cell_id;
-        var c2 = start_cell_id + 10; 
-        var c3 = start_cell_id + 9;
+        var c2 = start_cell_id + 9; 
+        var c3 = start_cell_id + 10;
         var c4 = start_cell_id + 19;
         const { board } = this.state;
-        const col = "red"
-        
+        const col = "red";
+
         //update cells
         this.setState({
             board: {
                 ...board, 
                 [c1]: { 
                     ...board[c1],
-                    state: "empty",
-                    line_top: true,
-                    line_right: true,
-                    line_bot: false,
-                    line_left: true,
+                    state: "active",
                     fill: col
                 },
                 [c2]: { 
                     ...board[c2],
-                    state: "empty",
-                    line_top: false,
-                    line_right: true,
-                    line_bot: true,
-                    line_left: false,
+                    state: "active",
                     fill: col
                 },
                 [c3]: { 
                     ...board[c3],
-                    state: "empty",
-                    line_top: true,
-                    line_right: false,
-                    line_bot: false,
-                    line_left: true,
+                    state: "active",
                     fill: col
                 },
                 [c4]: { 
                     ...board[c4],
-                    state: "empty",
-                    line_top: false,
-                    line_right: true,
-                    line_bot: true,
-                    line_left: true,
+                    state: "active",
                     fill: col
                 }
             },
@@ -769,14 +740,14 @@ export default class Sp_game extends React.Component {
             long10: [-9,0,9,18],
             long21: [9,0,-9,-18],
             long32: [-9,0,9,18],
-            mrt01: [11,0,-11,9],
-            mrt12: [9,0,-9,-11],
-            mrt23: [-11,0,11,-9],
-            mrt30: [-9,0,9,11],
-            mrt03: [9,0,-9,-11],
-            mrt10: [-11,0,11,-9],
-            mrt21: [-9,0,9,11],
-            mrt32: [11,0,-11,9],
+            mrt01: [9,0,0,0],
+            mrt12: [-9,-1,-1,0],
+            mrt23: [0,0,0,-9],
+            mrt30: [0,1,1,9],
+            mrt03: [0,-1,-1,-9],
+            mrt10: [-9,0,0,0],
+            mrt21: [9,1,1,0],
+            mrt32: [0,0,0,9],
             phat01: [0,0,0,0],
             phat12: [0,0,0,0],
             phat23: [0,0,0,0],
@@ -785,38 +756,38 @@ export default class Sp_game extends React.Component {
             phat10: [0,0,0,0],
             phat21: [0,0,0,0],
             phat32: [0,0,0,0],
-            l01: [11,0,-11,-2],
-            l12: [9,0,-9,-20],
-            l23: [-11,0,11,2],
-            l30: [-9,0,9,20],
-            l03: [9,0,-9,-20],
-            l10: [-11,0,11,2],
-            l21: [-9,0,9,20],
-            l32: [11,0,-11,-2],
-            bkl01: [11,0,-11,-20],
-            bkl12: [9,0,-9,2],
-            bkl23: [-22,-12,-2,-3],
-            bkl30: [2,12,22,21],
-            bkl03: [-2,-12,-22,-21],
-            bkl10: [-11,0,11,20],
-            bkl21: [-9,0,9,-2],
-            bkl32: [22,12,2,3],
-            s01: [1,-10,-1,-12],
-            s12: [-1,10,1,12],
-            s23: [1,-10,-1,-12],
-            s30: [-1,10,1,12],
-            s03: [1,-10,-1,-12],
-            s10: [-1,10,1,12],
-            s21: [1,-10,-1,-12],
-            s32: [-1,10,1,12],
-            bks01: [10,-1,-10,-21],
-            bks12: [-10,1,10,21],
-            bks23: [10,-1,-10,-21],
-            bks30: [-10,1,10,21],
-            bks03: [10,-1,-10,-21],
-            bks10: [-10,1,10,21],
-            bks21: [10,-1,-10,-21],
-            bks32: [-10,1,10,21]
+            l01: [9,0,-9,-2],
+            l12: [-10,-10,-1,1],
+            l23: [2,9,0,-9],
+            l30: [-1,1,10,10],
+            l03: [1,-1,-10,-10],
+            l10: [-9,0,9,2],
+            l21: [10,10,1,-1],
+            l32: [-2,-9,0,9],
+            bkl01: [-1,-1,-9,-9],
+            bkl12: [1,-8,0,9],
+            bkl23: [9,9,1,1],
+            bkl30: [-9,0,8,-1],
+            bkl03: [9,0,-8,1],
+            bkl10: [1,1,9,9],
+            bkl21: [-1,8,0,-9],
+            bkl32: [-9,-9,-1,-1],
+            s01: [0,-9,-2,-11],
+            s12: [0,9,2,11],
+            s23: [0,-9,-2,-11],
+            s30: [0,9,2,11],
+            s03: [0,-9,-2,-11],
+            s10: [0,9,2,11],
+            s21: [0,-9,-2,-11],
+            s32: [0,9,2,11],
+            bks01: [-2,-10,-1,-9],
+            bks12: [2,10,1,9],
+            bks23: [-2,-10,-1,-9],
+            bks30: [2,10,1,9],
+            bks03: [-2,-10,-1,-9],
+            bks10: [2,10,1,9],
+            bks21: [-2,-10,-1,-9],
+            bks32: [2,10,1,9]
         }
         var active_keys = [];
         var str = piece + start + end;
