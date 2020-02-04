@@ -12,7 +12,9 @@ export default class Sp_game extends React.Component {
             cols: 10,
             active_piece_name: '',
             active_piece_direction: '',
+            currentKey: ''
         };
+        this.handleKeyPress = this.handleKeyPress.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -20,7 +22,31 @@ export default class Sp_game extends React.Component {
             console.log('hello there')
         }
     };
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyPress);
+    }
     
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyPress);
+    }
+
+    handleKeyPress(e) {
+        const keyCode = e.keyCode.toString();
+        const map = {
+            32: "space", //space
+            37: () => this.player_move_left(), //left arrow
+            38: () => this.player_rotate_right(), //up arrow
+            39: () => this.player_move_right(), //right arrow
+            40: () => this.player_rotate_left(), //down arrow
+            66: "B" //b
+        };
+        const func = map[keyCode];
+        if (func) {
+            func();
+        }
+    }
+
     board_generate_data() {
         var data = {};
         var counter = 0;
@@ -55,7 +81,7 @@ export default class Sp_game extends React.Component {
         //draw cells
         for(var key in this.state.board) {
             this.cell_render(key)
-        }
+        };
 
         //draw outline
         ctx.beginPath();
@@ -66,8 +92,6 @@ export default class Sp_game extends React.Component {
         ctx.lineTo(0, 0)
         ctx.strokeStyle = "black";
         ctx.stroke();
-        
-        console.log(this.state.board)
     }
 
     cell_render(cell_id) {
@@ -120,6 +144,47 @@ export default class Sp_game extends React.Component {
         ctx.stroke();
     }
 
+    //applies correct line data to active cells
+    active_border() {
+        const { board } = this.state;
+
+        //get active cells
+        for(var key in board) {
+            if(board[key].state === "active") {
+                var intkey = parseInt(key);
+                //top check
+                if(board[intkey - 10].state !== "active") {
+                    board[key].line_top = true;
+                } else {
+                    board[key].line_top = false;
+                };
+                //right check
+                if(board[intkey + 1].state !== "active") {
+                    board[key].line_right = true;
+                } else {
+                    board[key].line_right = false;
+                };
+                //bot check
+                if(board[intkey + 10].state !== "active") {
+                    board[key].line_bot = true;
+                } else {
+                    board[key].line_bot = false;
+                };
+                //left check
+                if(board[intkey - 1].state !== "active") {
+                    board[key].line_left = true;
+                } else {
+                    board[key].line_left = false;
+                }
+            } else if(board[key].state === "empty") {
+                board[key].line_top = false;
+                board[key].line_right = false;
+                board[key].line_top = false;
+                board[key].line_left = false
+            }
+        };
+    }
+
     piece_long(start_cell_id) {
         //cells to modify
         var c1 = start_cell_id;
@@ -157,6 +222,8 @@ export default class Sp_game extends React.Component {
             active_piece_name: "long",
             active_piece_direction: 0
         });
+
+        // this.render_active_border()
     }
 
     piece_mrt(start_cell_id) {
@@ -175,37 +242,21 @@ export default class Sp_game extends React.Component {
                 [c1]: { 
                     ...board[c1],
                     state: "active",
-                    line_top: true,
-                    line_right: true,
-                    line_bot: false,
-                    line_left: true,
                     fill: col
                 },
                 [c2]: { 
                     ...board[c2],
                     state: "active",
-                    line_top: false,
-                    line_right: false,
-                    line_bot: false,
-                    line_left: true,
                     fill: col
                 },
                 [c3]: { 
                     ...board[c3],
                     state: "active",
-                    line_top: true,
-                    line_right: true,
-                    line_bot: true,
-                    line_left: false,
                     fill: col
                 },
                 [c4]: { 
                     ...board[c4],
                     state: "active",
-                    line_top: false,
-                    line_right: true,
-                    line_bot: true,
-                    line_left: true,
                     fill: col
                 }
             },
@@ -230,37 +281,21 @@ export default class Sp_game extends React.Component {
                 [c1]: { 
                     ...board[c1],
                     state: "active",
-                    line_top: true,
-                    line_right: false,
-                    line_bot: false,
-                    line_left: true,
                     fill: col
                 },
                 [c2]: { 
                     ...board[c2],
                     state: "active",
-                    line_top: false,
-                    line_right: false,
-                    line_bot: true,
-                    line_left: true,
                     fill: col
                 },
                 [c3]: { 
                     ...board[c3],
                     state: "active",
-                    line_top: true,
-                    line_right: true,
-                    line_bot: false,
-                    line_left: false,
                     fill: col
                 },
                 [c4]: { 
                     ...board[c4],
                     state: "active",
-                    line_top: false,
-                    line_right: true,
-                    line_bot: true,
-                    line_left: false,
                     fill: col
                 }
             },
@@ -285,37 +320,21 @@ export default class Sp_game extends React.Component {
                 [c1]: { 
                     ...board[c1],
                     state: "active",
-                    line_top: true,
-                    line_right: true,
-                    line_bot: false,
-                    line_left: true,
                     fill: col
                 },
                 [c2]: { 
                     ...board[c2],
                     state: "active",
-                    line_top: false,
-                    line_right: true,
-                    line_bot: false,
-                    line_left: true,
                     fill: col
                 },
                 [c3]: { 
                     ...board[c3],
                     state: "active",
-                    line_top: false,
-                    line_right: false,
-                    line_bot: true,
-                    line_left: true,
                     fill: col
                 },
                 [c4]: { 
                     ...board[c4],
                     state: "active",
-                    line_top: true,
-                    line_right: true,
-                    line_bot: true,
-                    line_left: false,
                     fill: col
                 }
             },
@@ -340,37 +359,21 @@ export default class Sp_game extends React.Component {
                 [c1]: { 
                     ...board[c1],
                     state: "active",
-                    line_top: true,
-                    line_right: true,
-                    line_bot: false,
-                    line_left: true,
                     fill: col
                 },
                 [c2]: { 
                     ...board[c2],
                     state: "active",
-                    line_top: false,
-                    line_right: true,
-                    line_bot: false,
-                    line_left: true,
                     fill: col
                 },
                 [c3]: { 
                     ...board[c3],
                     state: "active",
-                    line_top: false,
-                    line_right: true,
-                    line_bot: true,
-                    line_left: false,
                     fill: col
                 },
                 [c4]: { 
                     ...board[c4],
                     state: "active",
-                    line_top: true,
-                    line_right: false,
-                    line_bot: true,
-                    line_left: true,
                     fill: col
                 }
             },
@@ -395,37 +398,21 @@ export default class Sp_game extends React.Component {
                 [c1]: { 
                     ...board[c1],
                     state: "active",
-                    line_top: true,
-                    line_right: true,
-                    line_bot: false,
-                    line_left: true,
                     fill: col
                 },
                 [c2]: { 
                     ...board[c2],
                     state: "active",
-                    line_top: false,
-                    line_right: false,
-                    line_bot: true,
-                    line_left: true,
                     fill: col
                 },
                 [c3]: { 
                     ...board[c3],
                     state: "active",
-                    line_top: true,
-                    line_right: true,
-                    line_bot: false,
-                    line_left: false,
                     fill: col
                 },
                 [c4]: { 
                     ...board[c4],
                     state: "active",
-                    line_top: false,
-                    line_right: true,
-                    line_bot: true,
-                    line_left: true,
                     fill: col
                 }
             },
@@ -471,6 +458,22 @@ export default class Sp_game extends React.Component {
             active_piece_name: "bks",
             active_piece_direction: 0
         });
+    }
+
+    //math.rand 1 of 7 pieces
+    piece_random() {
+        const map = {
+            0: () => this.piece_long(4),
+            1: () => this.piece_mrt(4),
+            2: () => this.piece_phat(4),
+            3: () => this.piece_l(4),
+            4: () => this.piece_bkl(5),
+            5: () => this.piece_s(4),
+            6: () => this.piece_bks(5)
+        };
+        let random = Math.floor(Math.random() * 7);
+        const func = map[random];
+        func();
     }
 
     active_down() {
@@ -584,8 +587,7 @@ export default class Sp_game extends React.Component {
             3: board[a3],
             4: board[a4]
         };
-
-        console.log(active_cells);
+        
         // setState * 8; active_cells set to empty, active_cells moved down 1 row (id + 10)
         this.setState({
             board: {
@@ -672,6 +674,7 @@ export default class Sp_game extends React.Component {
                 }
             }
         }, () => {
+            this.active_border();
             this.board_render();
         });
     }
@@ -810,11 +813,10 @@ export default class Sp_game extends React.Component {
         var b2 = active_keys[1] + moveset[1];
         var b3 = active_keys[2] + moveset[2];
         var b4 = active_keys[3] + moveset[3];
-
+        
         this.update_static_cells(a1, a2, a3, a4, b1, b2, b3, b4)
     }
 
-    // maybe have which piece is active in the state as well as its rotation position to determine cell updates
     player_rotate_right() {
         var piece = this.state.active_piece_name;
         var start = this.state.active_piece_direction;
@@ -879,15 +881,12 @@ export default class Sp_game extends React.Component {
             <Button variant="primary" onClick={() => this.piece_bkl(5)}>input bkl</Button>
             <Button variant="primary" onClick={() => this.piece_s(4)}>input s</Button>
             <Button variant="primary" onClick={() => this.piece_bks(5)}>input bks</Button>
+            <Button variant="primary" onClick={() => this.piece_random()}>input RANDOM</Button>
             <br></br>
             <br></br>
             <Button variant="primary" onClick={() => this.player_move_left()}>move left 1</Button>
             <Button variant="primary" onClick={() => this.active_down()}>active down 1</Button>
-            <Button variant="primary" onClick={() => this.player_move_right()}>move right 1</Button>
-            <br></br>
-            <br></br>
-            <Button variant="primary" onClick={() => this.player_rotate_left()}>rotate left</Button>
-            <Button variant="primary" onClick={() => this.player_rotate_right()}>rotate right</Button>
+            <Button variant="primary" onClick={() => this.active_border()}>active border</Button>
             <br></br>
             <br></br>
             <canvas id="canvas" width="250" height="600"></canvas>;
