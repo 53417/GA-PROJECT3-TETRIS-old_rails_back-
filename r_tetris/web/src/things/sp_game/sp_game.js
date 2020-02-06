@@ -12,14 +12,28 @@ export default class Sp_game extends React.Component {
             cols: 10,
             active_piece_name: '',
             active_piece_direction: '',
-            currentKey: ''
+            currentKey: '',
+            tempo: 0
         };
         this.handleKeyPress = this.handleKeyPress.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (prevState.board.size !== this.state.board.size) {
-            console.log('hello there')
+        // if (Object.keys(prevState.board).length !== Object.keys(this.state.board).length) {
+        //     setInterval(() => {
+            
+        //         if (this.state.action === "kill") {
+        //             clearInterval()
+        //         } else {
+        //             console.log()
+        //             this.active_down()
+        //         }
+        //     }, 1000)
+        // }
+        if(this.state.tempo > 0) {
+            setInterval(() => {
+                this.active_down()
+            }, this.state.tempo)
         }
     };
 
@@ -39,7 +53,7 @@ export default class Sp_game extends React.Component {
             38: () => this.player_rotate_right(), //up arrow
             39: () => this.player_move_right(), //right arrow
             40: () => this.player_rotate_left(), //down arrow
-            66: "B" //b
+            66: () => this.active_down() //down arrow
         };
         const func = map[keyCode];
         if (func) {
@@ -92,6 +106,10 @@ export default class Sp_game extends React.Component {
         ctx.lineTo(0, 0)
         ctx.strokeStyle = "black";
         ctx.stroke();
+    }
+
+    show_state() {
+        console.log(this.state.board)
     }
 
     cell_render(cell_id) {
@@ -152,30 +170,33 @@ export default class Sp_game extends React.Component {
         for(var key in board) {
             if(board[key].state === "active") {
                 var intkey = parseInt(key);
-                //top check
-                if(board[intkey - 10].state !== "active") {
-                    board[key].line_top = true;
-                } else {
-                    board[key].line_top = false;
-                };
-                //right check
-                if(board[intkey + 1].state !== "active") {
-                    board[key].line_right = true;
-                } else {
-                    board[key].line_right = false;
-                };
-                //bot check
-                if(board[intkey + 10].state !== "active") {
-                    board[key].line_bot = true;
-                } else {
-                    board[key].line_bot = false;
-                };
-                //left check
-                if(board[intkey - 1].state !== "active") {
-                    board[key].line_left = true;
-                } else {
-                    board[key].line_left = false;
-                }
+                // if(board[intkey].row !== 1) {
+                    //top check
+                    if(board[intkey - 10].state !== "active") {
+                        board[key].line_top = true;
+                    } else {
+                        board[key].line_top = false;
+                    };
+                    //right check
+                    if(board[intkey + 1].state !== "active") {
+                        board[key].line_right = true;
+                    } else {
+                        board[key].line_right = false;
+                    };
+                    //bot check
+                    if(board[intkey + 10].state !== "active") {
+                        board[key].line_bot = true;
+                    } else {
+                        board[key].line_bot = false;
+                    };
+                    //left check
+                    if(board[intkey - 1].state !== "active") {
+                        board[key].line_left = true;
+                    } else {
+                        board[key].line_left = false;
+                    }
+                // }
+
             } else if(board[key].state === "empty") {
                 board[key].line_top = false;
                 board[key].line_right = false;
@@ -574,8 +595,16 @@ export default class Sp_game extends React.Component {
                 }
             }
         }, () => {
+            this.check_inactive();
             this.board_render();
         });
+    }
+
+    //drop
+    increment_drop(action){
+       this.setState({
+           tempo: 500
+       })
     }
 
     //moves cells eg: a1 to b1
@@ -851,6 +880,60 @@ export default class Sp_game extends React.Component {
         this.piece_rotate(piece, start, end)
     }
 
+    check_inactive() {
+        const { board } = this.state;
+        var active_keys = [];
+        var true_counter = 0;
+        //get active cells
+        for(var key in board) {
+            if(board[key].state === "active") {
+                active_keys.push(parseInt(key));
+            }
+        };
+
+        //cycle through each active bottom to determine if should convert to inactive
+        for(let i = 0; i < active_keys.length; i++) {
+            if (board[active_keys[i]].row == 24) {
+                true_counter += 1
+            } else if (board[active_keys[i] + 10].state == "full") {
+                true_counter += 1
+            }
+        };
+
+        if(true_counter > 0) {
+            this.setState({
+                board: {
+                    ...board, 
+                    [active_keys[0]]: { 
+                        ...board[active_keys[0]],
+                        state: "full"
+                    },
+                    [active_keys[1]]: { 
+                        ...board[active_keys[1]],
+                        state: "full"
+                    },
+                    [active_keys[2]]: { 
+                        ...board[active_keys[2]],
+                        state: "full"
+                    },
+                    [active_keys[3]]: {
+                        ...board[active_keys[3]],
+                        state: "full"
+                    }
+                }
+            }, () => {
+                this.piece_random();
+                this.active_border();
+                console.log(true)
+            });
+        } else {
+            console.log(false)
+        }
+        
+    }
+
+
+
     //game board is 10 wide and 20 high
     // might make it 24 high to accomodate for beginning
     // do a lose check everytime a new piece is placed - if any values in first 4 rows = true then = lose
@@ -872,6 +955,9 @@ export default class Sp_game extends React.Component {
             <h1>SinglePlayer</h1>
             <Button variant="primary" onClick={() => this.board_generate_data()}>generate board data</Button>
             <Button variant="success" onClick={() => this.board_render()}>render board</Button>
+            <Button variant="success" onClick={() => this.increment_drop()}>start dropping</Button>
+            <Button variant="success" onClick={() => this.increment_drop(0)}>stop dropping</Button>
+            <Button variant="success" onClick={() => this.show_state()}>show state</Button>
             <br></br>
             <br></br>
             <Button variant="primary" onClick={() => this.piece_long(4)}>input long</Button>
@@ -886,10 +972,10 @@ export default class Sp_game extends React.Component {
             <br></br>
             <Button variant="primary" onClick={() => this.player_move_left()}>move left 1</Button>
             <Button variant="primary" onClick={() => this.active_down()}>active down 1</Button>
-            <Button variant="primary" onClick={() => this.active_border()}>active border</Button>
+            <Button variant="primary" onClick={() => this.check_inactive()}>check inactive</Button>
             <br></br>
             <br></br>
-            <canvas id="canvas" width="250" height="600"></canvas>;
+            <canvas id="canvas" width="250" height="600"></canvas>
             </>
         );
     }
