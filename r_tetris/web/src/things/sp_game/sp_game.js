@@ -922,6 +922,7 @@ export default class Sp_game extends React.Component {
                     }
                 }
             }, () => {
+                this.check_tetris();
                 this.piece_random();
                 this.active_border();
                 console.log(true)
@@ -932,7 +933,115 @@ export default class Sp_game extends React.Component {
         
     }
 
+    check_tetris() {
+        const { board } = this.state;
+        let upd_board = {};
 
+        //id rows to clear in array
+        let row_clear = [];
+
+        //cycle through board and push rows with all states as filled
+        for(let chkrow = 0; chkrow < this.state.rows; chkrow++) {
+            let fill_cell_counter = 0;
+            //cycle row and count the filled
+            for(let chkrow_cell = 0; chkrow_cell < this.state.cols; chkrow_cell++) {
+                //id cell with math
+                let cell = (chkrow * 10) + chkrow_cell;
+                // counting fill logic
+                if(board[cell].state == "full") {
+                    fill_cell_counter += 1
+                };
+            };
+            //if row is filled push row id to the row_clear array
+            if(fill_cell_counter === 10) {
+                row_clear.push(chkrow + 1)
+            }
+        }
+
+        //math based on row_clear array - only run if row_clear.length > 0
+        if(row_clear.length > 0) {
+
+            //generate map of all the rows
+            let map = {
+                1: 0,
+                2: 0,
+                3: 0,
+                4: 0,
+                5: 0,
+                6: 0,
+                7: 0,
+                8: 0,
+                10: 0,
+                11: 0,
+                12: 0,
+                13: 0,
+                14: 0,
+                15: 0,
+                16: 0,
+                17: 0,
+                18: 0,
+                19: 0,
+                20: 0,
+                21: 0,
+                22: 0,
+                23: 0,
+                24: 0 //can ignore this row as redundant in loop?
+            }
+
+            //looping through the row_clear array
+            for(let i = 0; i < row_clear.length; i++) {
+                //loop through map and += the numbers less than rows to clear
+                for(let x = 1; x <= row_clear[i]; x++) {
+                    map[x] += 1
+                }
+            }
+
+            //loop through board backwards and perform adjustments to each cell according to value in map
+            for(let i = 239; i >= 0; i--) {
+                let cell = board[i];
+                let row_down = map[cell.row];
+                let incre = row_down * 10;
+
+                //perform check to see if adjustmenet is necessary
+                if(row_down > 0) {
+                    // destination = current
+                    upd_board[i + incre] = {
+                        row: cell.row + row_down,
+                        col: cell.col,
+                        state: cell.state,
+                        line_top: cell.line_top,
+                        line_right: cell.line_right,
+                        line_bot: cell.line_bot,
+                        line_left: cell.line_left,
+                        fill: cell.fill
+                    };
+                }
+            }
+
+            //loop through top rows = to row_clear.length and reset them to empty
+            for(let i = 0; i < row_clear.length; i++) {
+                for(let x = 0; i < 10; i++) {
+                    let cell = (i * 10) + x;
+                    
+                    // current = blank
+                    upd_board[cell] = {
+                        row: i + 1,
+                        col: x + 1,
+                        state: "empty", //empty, full, active
+                        line_top: false,
+                        line_right: false,
+                        line_bot: false,
+                        line_left: false,
+                        fill: ""
+                    };
+                }
+            }
+
+            this.setState({
+                board: upd_board
+            });
+        }
+    }
 
     //game board is 10 wide and 20 high
     // might make it 24 high to accomodate for beginning
@@ -960,19 +1069,20 @@ export default class Sp_game extends React.Component {
             <Button variant="success" onClick={() => this.show_state()}>show state</Button>
             <br></br>
             <br></br>
-            <Button variant="primary" onClick={() => this.piece_long(4)}>input long</Button>
+            {/* <Button variant="primary" onClick={() => this.piece_long(4)}>input long</Button>
             <Button variant="primary" onClick={() => this.piece_mrt(4)}>input mrt</Button>
             <Button variant="primary" onClick={() => this.piece_phat(4)}>input phat</Button>
             <Button variant="primary" onClick={() => this.piece_l(4)}>input l</Button>
             <Button variant="primary" onClick={() => this.piece_bkl(5)}>input bkl</Button>
             <Button variant="primary" onClick={() => this.piece_s(4)}>input s</Button>
-            <Button variant="primary" onClick={() => this.piece_bks(5)}>input bks</Button>
+            <Button variant="primary" onClick={() => this.piece_bks(5)}>input bks</Button> */}
             <Button variant="primary" onClick={() => this.piece_random()}>input RANDOM</Button>
-            <br></br>
+            <Button variant="primary" onClick={() => this.check_tetris()}>check tetris</Button>
+            {/* <br></br>
             <br></br>
             <Button variant="primary" onClick={() => this.player_move_left()}>move left 1</Button>
             <Button variant="primary" onClick={() => this.active_down()}>active down 1</Button>
-            <Button variant="primary" onClick={() => this.check_inactive()}>check inactive</Button>
+            <Button variant="primary" onClick={() => this.check_inactive()}>check inactive</Button> */}
             <br></br>
             <br></br>
             <canvas id="canvas" width="250" height="600"></canvas>
