@@ -172,37 +172,38 @@ export default class Sp_game extends React.Component {
 
         //get active cells
         for(let i = 39; i < 229; i++) {
-            if(board[i].state === "active") {
-                //top check
-                if(board[i - 10].state !== "active") {
-                    board[i].line_top = true;
-                } else {
+            if(board[i] !== undefined) {
+                if(board[i].state === "active") {
+                    //top check
+                    if(board[i - 10].state !== "active") {
+                        board[i].line_top = true;
+                    } else {
+                        board[i].line_top = false;
+                    };
+                    //right check
+                    if(board[i + 1].state !== "active") {
+                        board[i].line_right = true;
+                    } else {
+                        board[i].line_right = false;
+                    };
+                    //bot check
+                    if(board[i + 10].state !== "active") {
+                        board[i].line_bot = true;
+                    } else {
+                        board[i].line_bot = false;
+                    };
+                    //left check
+                    if(board[i - 1].state !== "active") {
+                        board[i].line_left = true;
+                    } else {
+                        board[i].line_left = false;
+                    }
+                } else if(board[i].state === "empty") {
                     board[i].line_top = false;
-                };
-                //right check
-                if(board[i + 1].state !== "active") {
-                    board[i].line_right = true;
-                } else {
                     board[i].line_right = false;
-                };
-                //bot check
-                if(board[i + 10].state !== "active") {
-                    board[i].line_bot = true;
-                } else {
-                    board[i].line_bot = false;
-                };
-                //left check
-                if(board[i - 1].state !== "active") {
-                    board[i].line_left = true;
-                } else {
-                    board[i].line_left = false;
+                    board[i].line_top = false;
+                    board[i].line_left = false
                 }
-
-            } else if(board[i].state === "empty") {
-                board[i].line_top = false;
-                board[i].line_right = false;
-                board[i].line_top = false;
-                board[i].line_left = false
             }
         };
     }
