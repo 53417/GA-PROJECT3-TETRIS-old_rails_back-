@@ -13,7 +13,9 @@ export default class Sp_game extends React.Component {
             active_piece_name: '',
             active_piece_direction: '',
             currentKey: '',
-            tempo: 0
+            tempo: 0,
+            lines_cleared: 0,
+            line_goal: 40
         };
         this.handleKeyPress = this.handleKeyPress.bind(this);
     }
@@ -48,12 +50,13 @@ export default class Sp_game extends React.Component {
     handleKeyPress(e) {
         const keyCode = e.keyCode.toString();
         const map = {
-            32: "space", //space
+            32: () => {this.player_drop_piece()
+            console.log('space pressed')}, //space
             37: () => this.player_move_left(), //left arrow
             38: () => this.player_rotate_right(), //up arrow
             39: () => this.player_move_right(), //right arrow
             40: () => this.player_rotate_left(), //down arrow
-            66: () => this.active_down() //down arrow
+            66: () => this.active_down() //B
         };
         const func = map[keyCode];
         if (func) {
@@ -82,7 +85,8 @@ export default class Sp_game extends React.Component {
         this.setState({
             board: data,
         });
-        console.log(this.state.board)
+        this.state.board = data;
+        this.piece_random()
     }
 
     board_render() {
@@ -167,41 +171,38 @@ export default class Sp_game extends React.Component {
         const { board } = this.state;
 
         //get active cells
-        for(var key in board) {
-            if(board[key].state === "active") {
-                var intkey = parseInt(key);
-                // if(board[intkey].row !== 1) {
-                    //top check
-                    if(board[intkey - 10].state !== "active") {
-                        board[key].line_top = true;
-                    } else {
-                        board[key].line_top = false;
-                    };
-                    //right check
-                    if(board[intkey + 1].state !== "active") {
-                        board[key].line_right = true;
-                    } else {
-                        board[key].line_right = false;
-                    };
-                    //bot check
-                    if(board[intkey + 10].state !== "active") {
-                        board[key].line_bot = true;
-                    } else {
-                        board[key].line_bot = false;
-                    };
-                    //left check
-                    if(board[intkey - 1].state !== "active") {
-                        board[key].line_left = true;
-                    } else {
-                        board[key].line_left = false;
-                    }
-                // }
+        for(let i = 39; i < 229; i++) {
+            if(board[i].state === "active") {
+                //top check
+                if(board[i - 10].state !== "active") {
+                    board[i].line_top = true;
+                } else {
+                    board[i].line_top = false;
+                };
+                //right check
+                if(board[i + 1].state !== "active") {
+                    board[i].line_right = true;
+                } else {
+                    board[i].line_right = false;
+                };
+                //bot check
+                if(board[i + 10].state !== "active") {
+                    board[i].line_bot = true;
+                } else {
+                    board[i].line_bot = false;
+                };
+                //left check
+                if(board[i - 1].state !== "active") {
+                    board[i].line_left = true;
+                } else {
+                    board[i].line_left = false;
+                }
 
-            } else if(board[key].state === "empty") {
-                board[key].line_top = false;
-                board[key].line_right = false;
-                board[key].line_top = false;
-                board[key].line_left = false
+            } else if(board[i].state === "empty") {
+                board[i].line_top = false;
+                board[i].line_right = false;
+                board[i].line_top = false;
+                board[i].line_left = false
             }
         };
     }
@@ -596,7 +597,8 @@ export default class Sp_game extends React.Component {
             }
         }, () => {
             this.check_inactive();
-            this.board_render();
+            this.active_border();
+            this.board_render()
         });
     }
 
@@ -703,6 +705,7 @@ export default class Sp_game extends React.Component {
                 }
             }
         }, () => {
+            this.check_inactive()
             this.active_border();
             this.board_render();
         });
@@ -729,7 +732,16 @@ export default class Sp_game extends React.Component {
         var b3 = active_keys[2] - 1;
         var b4 = active_keys[3] - 1;
 
-        this.update_static_cells(a1, a2, a3, a4, b1, b2, b3, b4)
+        var invalid_counter = 0;
+        for(let i = 0; i < active_keys.length; i++) {
+            if(board[active_keys[i]].col == 1) {
+                invalid_counter += 1
+            }
+        }
+
+        if(invalid_counter == 0) {
+            this.update_static_cells(a1, a2, a3, a4, b1, b2, b3, b4)
+        }
     }
 
     player_move_right() {
@@ -753,10 +765,73 @@ export default class Sp_game extends React.Component {
         var b3 = active_keys[2] + 1;
         var b4 = active_keys[3] + 1;
 
-        this.update_static_cells(a1, a2, a3, a4, b1, b2, b3, b4)
+        var invalid_counter = 0;
+        for(let i = 0; i < active_keys.length; i++) {
+            if(board[active_keys[i]].col == 10) {
+                invalid_counter += 1
+            }
+        }
+
+        if(invalid_counter == 0) {
+            this.update_static_cells(a1, a2, a3, a4, b1, b2, b3, b4)
+        }
     }
 
     player_drop_piece() {
+        var active_keys = [];
+        const { board } = this.state;
+        var drop = -1;
+        let r_count = 0
+
+        //find active keys
+        for(var key in board) {
+            if(board[key].state === "active") {
+                active_keys.push(parseInt(key));
+            }
+        };
+
+        //loop through rows to find the number of rows to drop
+
+        while(drop < 0) {
+            var true_counter = 0;
+            
+            //loop through activ key bottoms for full or null >239's
+            for(let i = 0; i < active_keys.length; i++) {
+                var test_cell = active_keys[i] + (r_count * 10);
+                
+                if(test_cell < 240) {
+                    if (board[test_cell].row == 24) {
+                        true_counter += 1
+                    } 
+                }
+
+                if(test_cell + 10 < 240) {
+                    if (board[test_cell + 10].state == "full") {
+                        true_counter += 1
+                    }
+                } else if(test_cell + 10 > 239){
+                    true_counter += 1
+                }
+            }
+
+
+            if(true_counter > 0) {
+                drop += r_count
+            } else {
+                r_count += 1
+            }
+        };
+
+        //update cells
+        var a1 = active_keys[0];
+        var a2 = active_keys[1];
+        var a3 = active_keys[2];
+        var a4 = active_keys[3];
+        var b1 = active_keys[0] + (r_count * 10);
+        var b2 = active_keys[1] + (r_count * 10);
+        var b3 = active_keys[2] + (r_count * 10);
+        var b4 = active_keys[3] + (r_count * 10);
+        this.update_static_cells(a1, a2, a3, a4, b1, b2, b3, b4)
     }
 
     player_down_piece() {
@@ -843,7 +918,16 @@ export default class Sp_game extends React.Component {
         var b3 = active_keys[2] + moveset[2];
         var b4 = active_keys[3] + moveset[3];
         
-        this.update_static_cells(a1, a2, a3, a4, b1, b2, b3, b4)
+        var invalid_counter = 0;
+
+        if(board[b1].state == "full") {invalid_counter += 1 };
+        if(board[b2].state == "full") {invalid_counter += 1 };
+        if(board[b3].state == "full") {invalid_counter += 1 };
+        if(board[b4].state == "full") {invalid_counter += 1 };
+
+        if(invalid_counter == 0) {
+            this.update_static_cells(a1, a2, a3, a4, b1, b2, b3, b4)
+        }
     }
 
     player_rotate_right() {
@@ -923,14 +1007,12 @@ export default class Sp_game extends React.Component {
                 }
             }, () => {
                 this.check_tetris();
-                this.piece_random();
-                this.active_border();
-                console.log(true)
+                this.piece_random()
             });
+            return true;
         } else {
-            console.log(false)
+            return false
         }
-        
     }
 
     check_tetris() {
@@ -941,10 +1023,10 @@ export default class Sp_game extends React.Component {
         let row_clear = [];
 
         //cycle through board and push rows with all states as filled
-        for(let chkrow = 0; chkrow < this.state.rows; chkrow++) {
+        for(let chkrow = 0; chkrow < 24; chkrow++) {
             let fill_cell_counter = 0;
             //cycle row and count the filled
-            for(let chkrow_cell = 0; chkrow_cell < this.state.cols; chkrow_cell++) {
+            for(let chkrow_cell = 0; chkrow_cell < 10; chkrow_cell++) {
                 //id cell with math
                 let cell = (chkrow * 10) + chkrow_cell;
                 // counting fill logic
@@ -960,7 +1042,6 @@ export default class Sp_game extends React.Component {
 
         //math based on row_clear array - only run if row_clear.length > 0
         if(row_clear.length > 0) {
-
             //generate map of all the rows
             let map = {
                 1: 0,
@@ -971,6 +1052,7 @@ export default class Sp_game extends React.Component {
                 6: 0,
                 7: 0,
                 8: 0,
+                9: 0,
                 10: 0,
                 11: 0,
                 12: 0,
@@ -992,12 +1074,12 @@ export default class Sp_game extends React.Component {
             for(let i = 0; i < row_clear.length; i++) {
                 //loop through map and += the numbers less than rows to clear
                 for(let x = 1; x <= row_clear[i]; x++) {
-                    map[x] += 1
+                    map[x] += 1;
                 }
             }
 
             //loop through board backwards and perform adjustments to each cell according to value in map
-            for(let i = 239; i >= 0; i--) {
+            for(let i = 229; i >= 0; i--) {
                 let cell = board[i];
                 let row_down = map[cell.row];
                 let incre = row_down * 10;
@@ -1020,7 +1102,7 @@ export default class Sp_game extends React.Component {
 
             //loop through top rows = to row_clear.length and reset them to empty
             for(let i = 0; i < row_clear.length; i++) {
-                for(let x = 0; i < 10; i++) {
+                for(let x = 0; x < 10; x++) {
                     let cell = (i * 10) + x;
                     
                     // current = blank
@@ -1038,8 +1120,10 @@ export default class Sp_game extends React.Component {
             }
 
             this.setState({
-                board: upd_board
+                board: upd_board,
+                lines_cleared: this.state.lines_cleared += row_clear.length
             });
+            this.state.board = upd_board;
         }
     }
 
@@ -1069,22 +1153,11 @@ export default class Sp_game extends React.Component {
             <Button variant="success" onClick={() => this.show_state()}>show state</Button>
             <br></br>
             <br></br>
-            {/* <Button variant="primary" onClick={() => this.piece_long(4)}>input long</Button>
-            <Button variant="primary" onClick={() => this.piece_mrt(4)}>input mrt</Button>
-            <Button variant="primary" onClick={() => this.piece_phat(4)}>input phat</Button>
-            <Button variant="primary" onClick={() => this.piece_l(4)}>input l</Button>
-            <Button variant="primary" onClick={() => this.piece_bkl(5)}>input bkl</Button>
-            <Button variant="primary" onClick={() => this.piece_s(4)}>input s</Button>
-            <Button variant="primary" onClick={() => this.piece_bks(5)}>input bks</Button> */}
-            <Button variant="primary" onClick={() => this.piece_random()}>input RANDOM</Button>
             <Button variant="primary" onClick={() => this.check_tetris()}>check tetris</Button>
-            {/* <br></br>
-            <br></br>
-            <Button variant="primary" onClick={() => this.player_move_left()}>move left 1</Button>
-            <Button variant="primary" onClick={() => this.active_down()}>active down 1</Button>
-            <Button variant="primary" onClick={() => this.check_inactive()}>check inactive</Button> */}
+            <Button variant="primary" onClick={() => this.check_inactive()}>check inactive</Button>
             <br></br>
             <br></br>
+            <h3>lines cleared: {this.state.lines_cleared}</h3>
             <canvas id="canvas" width="250" height="600"></canvas>
             </>
         );
