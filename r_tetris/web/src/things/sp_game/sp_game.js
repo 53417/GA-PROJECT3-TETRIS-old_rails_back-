@@ -1146,6 +1146,8 @@ export default class Sp_game extends React.Component {
     render() {
         return(
             <>
+            <h1>This project is continued at https://github.com/53417/GA-PROJECT3-TETRIS-MERN.git</h1>
+            <p>Departing from rails backend - moving on the mongodb (MERN)</p>
             <h1>SinglePlayer</h1>
             <Button variant="primary" onClick={() => this.board_generate_data()}>generate board data</Button>
             <Button variant="success" onClick={() => this.board_render()}>render board</Button>
